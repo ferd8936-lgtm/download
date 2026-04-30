@@ -61,9 +61,9 @@
             document.getElementById('token').addEventListener('input', function() { localStorage.setItem('github_token', this.value); });
             document.getElementById('repo').addEventListener('input', function() { localStorage.setItem('github_repo', this.value); });
 
-            // 주소창에 ?admin=true 가 있는지 확인
+            // 주소창에 ?ferd 가 있는지 확인 (수정됨)
             const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('admin') === 'true') {
+            if (urlParams.has('ferd')) {
                 const pwd = prompt("관리자 비밀번호를 입력하세요:");
                 if (pwd === ADMIN_PASSWORD) {
                     // 비밀번호가 맞으면 관리자 영역 표시 및 목록 불러오기
