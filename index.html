@@ -198,12 +198,8 @@
             listContainer.innerHTML = "<tr><td colspan='4' style='text-align:center;'>목록을 불러오는 중...</td></tr>";
 
             try {
-                // 캐시 방지 옵션 추가: 무조건 최신 목록을 가져오도록 강제
                 const url = `https://api.github.com/repos/${repo}/contents/`;
-                const response = await fetch(url, { 
-                    headers: { 'Authorization': `token ${token}` },
-                    cache: 'no-store' 
-                });
+                const response = await fetch(url, { headers: { 'Authorization': `token ${token}` }, cache: 'no-store' });
 
                 if (response.ok) {
                     const data = await response.json();
@@ -214,11 +210,7 @@
 
                     for (const file of filesOnly) {
                         const commitUrl = `https://api.github.com/repos/${repo}/commits?path=${encodeURIComponent(file.name)}&per_page=1`;
-                        // 업로드 시간도 캐시 없이 정확하게 가져오도록 옵션 추가
-                        const commitRes = await fetch(commitUrl, { 
-                            headers: { 'Authorization': `token ${token}` },
-                            cache: 'no-store' 
-                        });
+                        const commitRes = await fetch(commitUrl, { headers: { 'Authorization': `token ${token}` }, cache: 'no-store' });
                         const commitData = await commitRes.json();
                         let displayDate = (commitData && commitData[0]) ? commitData[0].commit.committer.date.replace('T', ' ').substring(0, 16) : "-";
 
@@ -230,8 +222,8 @@
                             <td style="text-align:center;">
                                 <button onclick="copyUrl('${file.download_url}')">URL복사</button>
                                 <button onclick="window.open('${file.download_url}')">다운로드</button>
-                                <!-- 삭제 버튼 빨간색 배경(#cc0000)으로 복구 -->
-                                <button onclick="deleteFile('${file.name}', '${file.sha}')" style="background:#cc0000;">삭제</button>
+                                <!-- 요구사항 1: 삭제 버튼을 빨간 배경색으로 확실하게 반영 -->
+                                <button onclick="deleteFile('${file.name}', '${file.sha}')" style="background:#cc0000 !important; color:white;">삭제</button>
                             </td>
                         `;
                         listContainer.appendChild(tr);
