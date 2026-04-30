@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>퍼드 - 깃허브 파일 관리 도구</title>
+    <style>
+        @font-face {
+            font-family: 'NexonGothic';
+            src: url('NexonLv2Gothic_2.ttf') format('truetype');
+        }
+        body { font-family: 'NexonGothic', sans-serif; padding: 20px; line-height: 1.6; }
+        .config-section { background: #f4f4f4; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        input { margin: 5px 0; padding: 8px; width: 100%; box-sizing: border-box; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; border-radius: 5px; }
+        button:hover { background: #0056b3; }
+        #fileList { margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px; }
+        .file-item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px id #eee; }
+    </style>
+</head>
+<body>
+
+    <h2>GitHub 파일 업로드/다운로드 시스템</h2>
+
+    <!-- 깃허브 설정 정보 입력 -->
+    <div class="config-section">
+        <input type="password" id="token" placeholder="GitHub Personal Access Token 입력">
+        <input type="text" id="repo" placeholder="사용자이름/저장소이름 (예: furd/my-storage)">
+        <p><small>* 보안을 위해 토큰은 브라우저를 닫으면 초기화되도록 설정했습니다.</small></p>
+    </div>
+
+    <!-- 파일 업로드 섹션 -->
+    <div>
+        <input type="file" id="fileInput">
+        <button onclick="uploadFile()">파일 업로드</button>
+    </div>
+
+    <!-- 파일 목록 및 다운로드 섹션 -->
+    <div id="fileList">
+        <h3>저장된 파일 목록</h3>
+        <button onclick="getFiles()">목록 새로고침</button>
+        <div id="listContainer"></div>
+    </div>
+
+    <script>
+        // 1. 파일 업로드 함수
+        async function uploadFile() {
+            const token = document.getElementById('token').value;
+            const repo = document.getElementById('repo').value;
+            const fileInput = document.getElementById('fileInput');
+            
+            if (!token || !repo || !fileInput.files[0]) {
+                alert("설정값과 파일을 모두 확인해주세요.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = async function() {
+                const content = reader.result.split(',')[1]; // Base64 내용만 추출
+                const path = file.name;
+                const url = `https://api.github.com/repos/${repo}/contents/${path}`;
+
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: `Upload ${path}`,
+                        content: content
+                    })
+                });
+
+                if (response.ok) {
+                    alert("업로드 성공!");
+                    getFiles(); // 목록 갱신
+                } else {
+                    alert("업로드 실패. 설정을 확인하세요.");
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 2. 파일 목록 불러오기 함수 (수정됨)
+        async function getFiles() {
+            const token = document.getElementById('token').value;
+            const repo = document.getElementById('repo').value;
+            const listContainer = document.getElementById('listContainer');
+
+            if (!token || !repo) return;
+
+            const url = `https://api.github.com/repos/${repo}/contents/`;
+            const response = await fetch(url, {
+                headers: { 'Authorization': `token ${token}` }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                listContainer.innerHTML = "";
+                data.forEach(file => {
+                    if (file.type === 'file') {
+                        const div = document.createElement('div');
+                        div.className = 'file-item';
+                        // 다운로드 링크 옆에 URL 복사 버튼이 추가되었습니다.
+                        div.innerHTML = `
+                            <span>${file.name}</span>
+                            <div>
+                                <button onclick="copyUrl('${file.download_url}')" style="padding: 5px 10px; font-size: 12px; margin-right: 5px; background: #28a745;">URL 복사</button>
+                                <a href="${file.download_url}" target="_blank">다운로드</a>
+                            </div>
+                        `;
+                        listContainer.appendChild(div);
+                    }
+                });
+            }
+        }
+
+// 3. URL 복사 함수 (새로 추가됨)
+        function copyUrl(url) {
+            navigator.clipboard.writeText(url).then(() => {
+                alert("다운로드 URL이 복사되었습니다! 원하는 곳에 붙여넣기(Ctrl+V) 하여 공유하세요.");
+            }).catch(err => {
+                alert("URL 복사에 실패했습니다.");
+            });
+        }
+
+    </script>
+</body>
+</html>
