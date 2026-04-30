@@ -6,100 +6,99 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>퍼드(FERD) 파일 관리 시스템</title>
     <style>
-        /* 1. 폰트 설정 */
+        /* 1. 전체 폰트 및 사이즈 통일 (요구사항 7) */
         @font-face {
             font-family: 'NexonGothic';
             src: url('NexonLv2Gothic_2.ttf') format('truetype');
         }
         
+        * { font-family: 'NexonGothic', sans-serif !important; box-sizing: border-box; }
+        body, input, button, table, th, td { font-size: 14px !important; }
+
         body { 
-            font-family: 'NexonGothic', sans-serif; 
             padding: 20px; 
             line-height: 1.6; 
             color: #333;
-            /* 웹 화면 우측 무한 늘어남 방지 및 중앙 정렬 */
-            max-width: 800px; 
+            /* 2. PC 화면 크기 30% 확대 (800px -> 1040px) (요구사항 4) */
+            max-width: 1040px; 
             margin: 0 auto; 
-            box-sizing: border-box;
         }
 
-        h2 { border-bottom: 2px solid #888; padding-bottom: 10px; font-size: 20px; }
+        h2 { border-bottom: 2px solid #888; padding-bottom: 10px; font-size: 20px !important; }
 
-        /* 2. 입력창 디자인: 가로 12% 수준 (최소 너비 보장) */
+        /* 3. 구역 가로 한줄 및 세로 중앙 정렬 (요구사항 2, 3, 5, 6) */
+        .config-section, .search-area { 
+            display: flex; 
+            align-items: center; /* 세로 가운데 정렬 */
+            gap: 5px; 
+            flex-wrap: nowrap; /* 스마트폰에서도 무조건 한 줄 유지 */
+        }
+
         .config-section { 
             background: #f9f9f9; 
-            padding: 15px; 
+            padding: 10px 15px; 
             border: 1px solid #ddd; 
             border-radius: 5px; 
             margin-bottom: 20px; 
         }
-        
-        input[type="text"], input[type="password"] { 
-            width: 12%; 
-            min-width: 100px;
-            padding: 5px; 
-            margin-right: 5px; 
-            border: 1px solid #ccc; 
-            font-family: 'NexonGothic';
-            font-size: 13px;
-            box-sizing: border-box;
+        .search-area { margin-bottom: 15px; }
+
+        /* 4. 입력칸과 버튼 세로 사이즈 완벽 동일화 (높이 38px 고정) */
+        input[type="text"], input[type="password"], button {
+            height: 38px;
+            margin: 0; /* 외부 여백 초기화 */
+            border-radius: 3px;
         }
 
-        /* 3. 버튼 디자인 통일: 회색 배경, 여백 최소화 */
+        input[type="text"], input[type="password"] { 
+            padding: 0 10px; 
+            border: 1px solid #ccc; 
+        }
+
         button { 
-            padding: 5px 10px; 
+            padding: 0 12px; 
             background: #888; 
-            color: white; 
+            color: white !important; 
             border: none; 
             cursor: pointer; 
-            border-radius: 3px; 
-            font-family: 'NexonGothic';
-            font-size: 13px;
-            margin-right: 2px;
-            white-space: nowrap;
+            white-space: nowrap; /* 글자 길이만큼만 가로 길이 유지 */
+            flex-shrink: 0; /* 버튼 가로 길이가 찌그러지지 않게 방어 */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
         
         button:hover { background: #666; }
 
-        /* 4. 테이블 디자인 및 가로 사이즈 50% 축소 반영 */
-        .table-responsive { width: 100%; overflow-x: auto; } /* 스마트폰 가로 스크롤 허용 */
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; table-layout: fixed; min-width: 450px; }
+        /* 5. 가로 길이 자동 분배 (요구사항 5, 6) */
+        #token, #repo { width: 30%; flex-grow: 1; min-width: 0; } /* 스마트폰에서 자연스럽게 줄어들게 설정 */
+        #searchInput { flex-grow: 1; width: auto !important; min-width: 0; } /* 검색칸이 남은 영역을 꽉 채움 */
+
+        /* 테이블 및 표 안의 버튼 디자인 */
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; table-layout: fixed; min-width: 450px; }
         
-        th { 
-            background-color: #f2f2f2; 
-            border: 1px solid #ddd; 
-            padding: 6px; 
-            text-align: center; 
-        }
-        
+        th { background-color: #f2f2f2; border: 1px solid #ddd; padding: 6px; text-align: center; }
         td { border: 1px solid #ddd; padding: 6px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         
-        /* 지정된 열 사이즈 50% 축소 반영 */
         .col-name { width: auto; } 
-        .col-num { width: 25px; text-align: center; font-size: 12px; } /* 50px -> 25px */
-        .col-time { width: 75px; text-align: center; font-size: 12px; } /* 150px -> 75px */
-        .col-action { width: 110px; text-align: center; } /* 220px -> 110px */
+        .col-num { width: 25px; text-align: center; } 
+        .col-time { width: 75px; text-align: center; } 
+        .col-action { width: 110px; text-align: center; }
         
-        /* 110px 안에 버튼 3개가 들어가도록 테이블 내 버튼 크기 최소화 */
         td button {
-            padding: 2px 4px;
-            font-size: 11px;
-            margin-right: 1px;
-            letter-spacing: -0.5px;
+            height: 26px; /* 표 안의 버튼은 크기를 작게 별도 유지 */
+            padding: 0 6px;
+            font-size: 12px !important;
         }
 
         tr:hover { background-color: #f9f9f9; }
 
-        #mainContent { margin-top: 20px; }
-        .search-area { margin-bottom: 15px; display: flex; align-items: center; flex-wrap: wrap; gap: 5px; }
-        #searchInput { width: 20% !important; min-width: 120px; padding: 7px !important; margin-right: 5px; flex-grow: 1; }
-
-        /* 모바일 기기(스마트폰) 최적화 설정 */
+        /* 스마트폰 화면 좌우 여백 최적화 */
         @media screen and (max-width: 600px) {
             body { padding: 10px; }
-            input[type="text"], input[type="password"] { width: 45%; margin-bottom: 5px; }
-            .search-area button { flex-grow: 1; padding: 8px; }
-            .col-time { font-size: 10px; }
+            .config-section { padding: 8px; }
+            button { padding: 0 8px; } /* 모바일에서 버튼 안쪽 여백 약간 축소 */
         }
     </style>
 </head>
@@ -222,8 +221,8 @@
                             <td style="text-align:center;">
                                 <button onclick="copyUrl('${file.download_url}')">URL복사</button>
                                 <button onclick="window.open('${file.download_url}')">다운로드</button>
-                                <!-- 요구사항 1: 삭제 버튼을 빨간 배경색으로 확실하게 반영 -->
-                                <button onclick="deleteFile('${file.name}', '${file.sha}')" style="background:#cc0000 !important; color:white;">삭제</button>
+                                <!-- 빨간색 배경 강제 적용 -->
+                                <button onclick="deleteFile('${file.name}', '${file.sha}')" style="background:#cc0000 !important; color:white !important;">삭제</button>
                             </td>
                         `;
                         listContainer.appendChild(tr);
