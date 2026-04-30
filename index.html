@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>퍼드(FERD) 파일 관리 시스템</title>
     <style>
-        /* 1. 폰트 설정 (NexonGothic) */
+        /* 1. 폰트 설정 */
         @font-face {
             font-family: 'NexonGothic';
             src: url('NexonLv2Gothic_2.ttf') format('truetype');
@@ -19,7 +19,7 @@
 
         h2 { border-bottom: 2px solid #888; padding-bottom: 10px; }
 
-        /* 2. 입력창 디자인: 가로 12% 수준으로 축소 */
+        /* 2. 입력창 디자인: 가로 12% 수준 */
         .config-section { 
             background: #f9f9f9; 
             padding: 15px; 
@@ -52,10 +52,25 @@
         
         button:hover { background: #666; }
 
-        /* 4. 테이블 디자인 */
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
+        /* 4. 테이블 디자인 (가운데 정렬 및 너비 조정) */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px; table-layout: fixed; }
+        
+        /* 첫 번째 행(헤더) 가로 가운데 정렬 */
+        th { 
+            background-color: #f2f2f2; 
+            border: 1px solid #ddd; 
+            padding: 8px; 
+            text-align: center; 
+        }
+        
+        td { border: 1px solid #ddd; padding: 8px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        
+        /* 파일명 행 너비 조정 (전체의 약 14% = 1/7) */
+        .col-name { width: 14%; }
+        .col-num { width: 50px; text-align: center; }
+        .col-time { width: 150px; text-align: center; }
+        .col-action { width: 220px; text-align: center; }
+        
         tr:hover { background-color: #f9f9f9; }
 
         #mainContent { margin-top: 20px; }
@@ -67,21 +82,16 @@
 
     <h2>퍼드(FERD) 파일 관리 시스템</h2>
 
-    <!-- 설정 영역 (저장 버튼 반영) -->
     <div class="config-section">
         <input type="password" id="token" placeholder="토큰">
         <input type="text" id="repo" placeholder="아이디/저장소">
         <button onclick="saveConfig()">저장</button>
-        <p><small style="color: #666;">* 토큰과 저장소 정보를 입력하고 [저장]을 누르면 브라우저에 기록됩니다.</small></p>
     </div>
 
-    <!-- 메인 콘텐츠 영역 (비밀번호 인증 후 표시) -->
     <div id="mainContent" style="display: none;">
         <div class="search-area">
             <input type="text" id="searchInput" onkeyup="searchFiles()" placeholder="파일 이름 검색...">
             <button onclick="getFiles()">목록 새로고침</button>
-            
-            <!-- 파일 업로드: 버튼 클릭 시 즉시 파일 선택 및 업로드 -->
             <button onclick="document.getElementById('fileInput').click()">파일 업로드</button>
             <input type="file" id="fileInput" style="display: none;" onchange="uploadFile()">
         </div>
@@ -89,97 +99,70 @@
         <table id="fileTable">
             <thead>
                 <tr>
-                    <th style="width: 50px;">순번</th>
-                    <th>파일명</th>
-                    <th style="width: 180px;">업로드 시간</th>
-                    <th style="width: 230px;">작업</th>
+                    <th class="col-num">순번</th>
+                    <th class="col-name">파일명</th>
+                    <th class="col-time">업로드 시간</th>
+                    <th class="col-action">작업</th>
                 </tr>
             </thead>
-            <tbody id="listContainer">
-                <!-- 파일 목록이 여기에 생성됩니다 -->
-            </tbody>
+            <tbody id="listContainer"></tbody>
         </table>
     </div>
 
     <script>
-        // 0. 보안 설정 (비밀번호)
         const ADMIN_PASSWORD = "jkd7102!!";
 
         window.onload = function() {
-            // 접속 시 즉시 비밀번호 확인 (요구사항 10)
             const pwd = prompt("비밀번호를 입력하세요:");
             if (pwd === ADMIN_PASSWORD) {
                 document.getElementById('mainContent').style.display = 'block';
-                
-                // 브라우저 저장소에서 정보 불러오기
                 const savedToken = localStorage.getItem('github_token');
                 const savedRepo = localStorage.getItem('github_repo');
                 if (savedToken) document.getElementById('token').value = savedToken;
                 if (savedRepo) document.getElementById('repo').value = savedRepo;
-                
                 if (savedToken && savedRepo) getFiles();
             } else {
-                alert("비밀번호가 틀렸습니다. 페이지를 새로고침하여 다시 시도하세요.");
+                alert("비밀번호가 틀렸습니다.");
                 document.body.innerHTML = "<div style='padding:50px; text-align:center;'><h3>접근 권한이 없습니다.</h3></div>";
             }
         };
 
-        // 1. 설정 저장 함수 (요구사항 3)
         function saveConfig() {
-            const token = document.getElementById('token').value;
-            const repo = document.getElementById('repo').value;
-            localStorage.setItem('github_token', token);
-            localStorage.setItem('github_repo', repo);
-            alert("정보가 브라우저에 저장되었습니다.");
+            localStorage.setItem('github_token', document.getElementById('token').value);
+            localStorage.setItem('github_repo', document.getElementById('repo').value);
+            alert("정보가 저장되었습니다.");
             getFiles();
         }
 
-        // 2. 즉시 업로드 함수 (요구사항 6)
         async function uploadFile() {
             const token = document.getElementById('token').value;
             const repo = document.getElementById('repo').value;
             const fileInput = document.getElementById('fileInput');
-            
-            if (!fileInput.files[0]) return;
-            if (!token || !repo) { alert("토큰과 저장소 정보를 먼저 입력해주세요."); return; }
+            if (!fileInput.files[0] || !token || !repo) return;
 
             const file = fileInput.files[0];
             const reader = new FileReader();
-
             reader.onload = async function() {
                 const content = reader.result.split(',')[1];
-                const url = `https://api.github.com/repos/${repo}/contents/${file.name}`;
-
+                const url = `https://api.github.com/repos/${repo}/contents/${encodeURIComponent(file.name)}`;
                 const response = await fetch(url, {
                     method: 'PUT',
-                    headers: { 
-                        'Authorization': `token ${token}`, 
-                        'Content-Type': 'application/json' 
-                    },
-                    body: JSON.stringify({
-                        message: `Upload ${file.name}`,
-                        content: content
-                    })
+                    headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: `Upload ${file.name}`, content: content })
                 });
-
-                if (response.ok) {
-                    alert("업로드 성공!");
-                    getFiles(); // 목록 갱신
-                } else {
-                    alert("업로드 실패. 권한이나 파일명을 확인하세요.");
-                }
+                if (response.ok) { alert("업로드 성공!"); getFiles(); }
+                else { alert("업로드 실패."); }
             };
             reader.readAsDataURL(file);
-            fileInput.value = ""; // 입력 초기화
+            fileInput.value = "";
         }
 
-        // 3. 파일 목록 및 시간 표시 함수 (요구사항 8)
         async function getFiles() {
             const token = document.getElementById('token').value;
             const repo = document.getElementById('repo').value;
             const listContainer = document.getElementById('listContainer');
-
             if (!token || !repo) return;
+
             listContainer.innerHTML = "<tr><td colspan='4' style='text-align:center;'>목록을 불러오는 중...</td></tr>";
 
             try {
@@ -191,83 +174,56 @@
                     listContainer.innerHTML = "";
                     let count = 1;
 
-                    // 파일만 걸러내기 (index.html과 폰트 파일 제외)
                     const filesOnly = data.filter(item => item.type === 'file' && item.name !== 'index.html' && item.name !== 'NexonLv2Gothic_2.ttf');
 
                     for (const file of filesOnly) {
-                        // 업로드 시간 가져오기 (Commit 정보 활용)
-                        const commitUrl = `https://api.github.com/repos/${repo}/commits?path=${file.name}&per_page=1`;
+                        const commitUrl = `https://api.github.com/repos/${repo}/commits?path=${encodeURIComponent(file.name)}&per_page=1`;
                         const commitRes = await fetch(commitUrl, { headers: { 'Authorization': `token ${token}` } });
                         const commitData = await commitRes.json();
-                        
-                        let displayDate = "-";
-                        if (commitData && commitData[0]) {
-                            const rawDate = commitData[0].commit.committer.date;
-                            displayDate = rawDate.replace('T', ' ').substring(0, 16); // YYYY-MM-DD HH:mm
-                        }
+                        let displayDate = (commitData && commitData[0]) ? commitData[0].commit.committer.date.replace('T', ' ').substring(0, 16) : "-";
 
                         const tr = document.createElement('tr');
-                        tr.className = 'file-item';
                         tr.innerHTML = `
-                            <td>${count++}</td>
-                            <td class="file-name-cell">${file.name}</td>
-                            <td>${displayDate}</td>
-                            <td>
+                            <td style="text-align:center;">${count++}</td>
+                            <td title="${file.name}">${file.name}</td>
+                            <td style="text-align:center;">${displayDate}</td>
+                            <td style="text-align:center;">
                                 <button onclick="copyUrl('${file.download_url}')">URL복사</button>
                                 <button onclick="window.open('${file.download_url}')">다운로드</button>
-                                <button onclick="deleteFile('${file.name}', '${file.sha}')" style="background:#cc0000;">삭제</button>
+                                <button onclick="deleteFile('${file.name}', '${file.sha}')" style="background:#888;">삭제</button>
                             </td>
                         `;
                         listContainer.appendChild(tr);
                     }
                 }
-            } catch (error) {
-                listContainer.innerHTML = "<tr><td colspan='4' style='text-align:center;'>오류가 발생했습니다.</td></tr>";
-            }
+            } catch (e) { listContainer.innerHTML = "<tr><td colspan='4'>목록 로딩 실패</td></tr>"; }
         }
 
-        // 4. 파일 삭제 함수 (요구사항 1)
         async function deleteFile(name, sha) {
-            if (!confirm(`'${name}' 파일을 정말 삭제하시겠습니까?`)) return;
-
+            if (!confirm(`'${name}'을 삭제할까요?`)) return;
             const token = document.getElementById('token').value;
             const repo = document.getElementById('repo').value;
-            const url = `https://api.github.com/repos/${repo}/contents/${name}`;
+            const url = `https://api.github.com/repos/${repo}/contents/${encodeURIComponent(name)}`;
 
             const response = await fetch(url, {
                 method: 'DELETE',
-                headers: { 
-                    'Authorization': `token ${token}`, 
-                    'Content-Type': 'application/json' 
-                },
-                body: JSON.stringify({
-                    message: `Delete ${name}`,
-                    sha: sha
-                })
+                headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: `Delete ${name}`, sha: sha })
             });
 
-            if (response.ok) {
-                alert("삭제 완료!");
-                getFiles();
-            } else {
-                alert("삭제 실패.");
-            }
+            if (response.ok) { alert("삭제 완료!"); getFiles(); }
+            else { alert("삭제 실패. 이미 삭제되었거나 권한이 없습니다."); getFiles(); }
         }
 
-        // 5. URL 복사 함수
         function copyUrl(url) {
-            navigator.clipboard.writeText(url).then(() => {
-                alert("다운로드 URL이 복사되었습니다.");
-            });
+            navigator.clipboard.writeText(url).then(() => alert("URL 복사 완료!"));
         }
 
-        // 6. 실시간 검색 함수
         function searchFiles() {
             const input = document.getElementById('searchInput').value.toLowerCase();
             const rows = document.querySelectorAll('#listContainer tr');
-
             rows.forEach(row => {
-                const fileName = row.querySelector('.file-name-cell').innerText.toLowerCase();
+                const fileName = row.cells[1].innerText.toLowerCase();
                 row.style.display = fileName.includes(input) ? "" : "none";
             });
         }
