@@ -19,29 +19,64 @@
 </head>
 <body>
 
-    <h2>GitHub 파일 업로드/다운로드 시스템</h2>
+    <h2>퍼드(FERD) 파일 업로드/다운로드</h2>
 
-    <!-- 깃허브 설정 정보 입력 -->
-    <div class="config-section">
-        <input type="password" id="token" placeholder="GitHub Personal Access Token 입력">
-        <input type="text" id="repo" placeholder="사용자이름/저장소이름 (예: furd/my-storage)">
-        <p><small>* 보안을 위해 토큰은 브라우저를 닫으면 초기화되도록 설정했습니다.</small></p>
-    </div>
+    <!-- 숨겨진 관리자 영역 (비밀번호 입력 시 표시됨) -->
+    <div id="adminArea" style="display: none;">
+        <!-- 깃허브 설정 정보 입력 -->
+        <div class="config-section">
+            <input type="password" id="token" placeholder="GitHub Personal Access Token 입력">
+            <input type="text" id="repo" placeholder="사용자이름/저장소이름 (예: furd/my-storage)">
+            <p><small>* 토큰과 저장소 이름은 브라우저에 자동 저장됩니다.</small></p>
+        </div>
 
-    <!-- 파일 업로드 섹션 -->
-    <div>
-        <input type="file" id="fileInput">
-        <button onclick="uploadFile()">파일 업로드</button>
+        <!-- 파일 업로드 섹션 -->
+        <div style="margin-bottom: 20px;">
+            <input type="file" id="fileInput">
+            <button onclick="uploadFile()">파일 업로드</button>
+        </div>
     </div>
 
     <!-- 파일 목록 및 다운로드 섹션 -->
     <div id="fileList">
         <h3>저장된 파일 목록</h3>
+        <!-- 파일 검색창 추가됨 -->
+        <input type="text" id="searchInput" onkeyup="searchFiles()" placeholder="파일 이름 검색..." style="padding: 8px; margin-bottom: 10px; width: 100%; box-sizing: border-box;">
         <button onclick="getFiles()">목록 새로고침</button>
         <div id="listContainer"></div>
     </div>
 
     <script>
+        // 0. 관리자 모드 및 자동 저장 초기화 (새로 추가)
+        const ADMIN_PASSWORD = "furd"; // 원하시는 관리자 비밀번호로 변경해서 사용하세요.
+
+        window.onload = function() {
+            // 로컬 스토리지에서 값 불러오기
+            const savedToken = localStorage.getItem('github_token');
+            const savedRepo = localStorage.getItem('github_repo');
+            if (savedToken) document.getElementById('token').value = savedToken;
+            if (savedRepo) document.getElementById('repo').value = savedRepo;
+
+            // 입력칸 변경 시 로컬 스토리지에 실시간 자동 저장
+            document.getElementById('token').addEventListener('input', function() { localStorage.setItem('github_token', this.value); });
+            document.getElementById('repo').addEventListener('input', function() { localStorage.setItem('github_repo', this.value); });
+
+            // 주소창에 ?admin=true 가 있는지 확인
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('admin') === 'true') {
+                const pwd = prompt("관리자 비밀번호를 입력하세요:");
+                if (pwd === ADMIN_PASSWORD) {
+                    // 비밀번호가 맞으면 관리자 영역 표시 및 목록 불러오기
+                    document.getElementById('adminArea').style.display = 'block';
+                    if (savedToken && savedRepo) getFiles(); 
+                } else {
+                    alert("비밀번호가 틀렸습니다.");
+                }
+            } else {
+                // 일반 접속 시 목록만 불러오기
+                if (savedToken && savedRepo) getFiles();
+            }
+        };
         // 1. 파일 업로드 함수
         async function uploadFile() {
             const token = document.getElementById('token').value;
@@ -124,6 +159,24 @@
             }).catch(err => {
                 alert("URL 복사에 실패했습니다.");
             });
+        }
+
+// 4. 파일 검색 함수 (새로 추가됨)
+        function searchFiles() {
+            const input = document.getElementById('searchInput').value.toLowerCase(); // 검색어를 소문자로 변환
+            const items = document.getElementsByClassName('file-item'); // 화면에 표시된 모든 파일 목록 가져오기
+
+            for (let i = 0; i < items.length; i++) {
+                // 파일 이름이 들어있는 span 태그의 글자를 가져와서 소문자로 변환
+                const fileName = items[i].querySelector('span').innerText.toLowerCase(); 
+                
+                // 검색어가 파일 이름에 포함되어 있으면 보이고, 없으면 숨김
+                if (fileName.includes(input)) {
+                    items[i].style.display = 'flex';
+                } else {
+                    items[i].style.display = 'none';
+                }
+            }
         }
 
     </script>
