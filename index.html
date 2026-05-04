@@ -81,14 +81,19 @@
         th { background-color: #f2f2f2; border: 1px solid #ddd; padding: 6px; text-align: center; }
         td { border: 1px solid #ddd; padding: 6px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         
-        /* 지정된 열 사이즈 조정 (고정 레이아웃 복구 및 순번 축소) */
-        .col-name { width: auto; } 
-        /* 순번 열: 약 25~30px로 축소 (글자가 들어갈 최소 공간) */
-        .col-num { width: 30px !important; text-align: center; padding: 0 2px !important; font-size: 12px !important; word-break: keep-all; } 
-        #fileTable td:nth-child(1) { padding: 0 2px !important; text-align: center; font-size: 12px !important; }
-        /* 업로드 시간 열: max-content 대신 넉넉한 고정값(160px)을 주어 레이아웃 깨짐 방지 */
-        .col-time { width: 160px !important; text-align: center; } 
-        .col-action { width: 180px !important; text-align: center; }
+        /* 1. 순번 열 극한 축소 및 고정 레이아웃 강제 적용 */
+        table { table-layout: fixed !important; min-width: 100% !important; }
+        
+        /* 순번 열: 너비를 20px로 강제하고 글자 크기를 줄여 영역 확보 */
+        .col-num { width: 22px !important; text-align: center; padding: 0 !important; font-size: 11px !important; letter-spacing: -1px; }
+        #fileTable td:nth-child(1) { width: 22px !important; padding: 0 !important; text-align: center; font-size: 11px !important; overflow: hidden; }
+
+        /* 파일명 열: 순번이 줄어든 만큼 자동으로 늘어남 */
+        .col-name { width: auto; }
+
+        /* 시간 및 작업 열: 텍스트가 잘리지 않도록 고정값 부여 */
+        .col-time { width: 140px !important; text-align: center; white-space: nowrap; }
+        .col-action { width: 180px !important; text-align: center; }
         
         td button {
             height: 26px; /* 표 안의 버튼은 크기를 작게 별도 유지 */
