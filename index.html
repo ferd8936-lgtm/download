@@ -81,18 +81,18 @@
         th { background-color: #f2f2f2; border: 1px solid #ddd; padding: 6px; text-align: center; }
         td { border: 1px solid #ddd; padding: 6px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         
-        /* 1. 순번 열 크기 조정 및 파일명 세로 꺾임 방지 */
+        /* 1. 순번 열 2배 확대(90px) 및 열 레이아웃 최적화 */
         table { table-layout: auto !important; width: 100%; border-collapse: collapse; }
         
-        /* 순번 열: 기존(22px)의 2배인 45px로 설정 */
-        .col-num { width: 45px !important; text-align: center; padding: 6px !important; font-size: 14px !important; }
-        #fileTable td:nth-child(1) { width: 45px !important; text-align: center; }
+        /* 순번 열: 기존 45px에서 2배 늘린 90px 설정 */
+        .col-num { width: 90px !important; text-align: center; padding: 6px !important; font-size: 14px !important; }
+        #fileTable td:nth-child(1) { width: 90px !important; text-align: center; }
 
-        /* 파일명 열: 글자가 세로로 내려가지 않도록 강제 설정 */
-        .col-name { width: auto; white-space: nowrap !important; text-overflow: clip; overflow: visible; }
+        /* 파일명 열: 세로 줄바꿈 방지 및 남는 공간 자동 채움 */
+        .col-name { width: auto; white-space: nowrap !important; }
         #fileTable td:nth-child(2) { white-space: nowrap !important; overflow: visible; }
 
-        /* 시간 및 작업 열: 고정값 유지 */
+        /* 시간 및 작업 열: 텍스트가 다 보일 수 있도록 너비 유지 */
         .col-time { width: 160px !important; text-align: center; white-space: nowrap; }
         .col-action { width: 180px !important; text-align: center; }
         
@@ -104,23 +104,23 @@
 
         tr:hover { background-color: #f9f9f9; }
 
-        /* 2. 스마트폰 화면: 파일명 세로 꺾임 방지 및 50% 확장 적용 */
+        /* 2. 스마트폰 화면: 순번 크기 유지 및 파일명 세로 꺾임 방지 */
         @media screen and (max-width: 600px) {
             body { padding: 10px; }
             
-            /* 모바일에서 파일명이 한 글자씩 나오지 않게 최소 너비 강제 부여 */
-            .col-name, #fileTable td:nth-child(2) { 
-                min-width: 250px !important; 
-                white-space: nowrap !important; 
-                display: table-cell; 
-            }
+            /* 모바일에서도 순번 열 90px 유지 */
+            .col-num, #fileTable td:nth-child(1) { width: 90px !important; min-width: 90px !important; }
 
-            /* 시간 및 작업 열도 충분히 넓혀서 점 처리 방지 */
+            /* 파일명, 시간, 작업 열이 좁아지지 않게 최소 너비 강제 부여 */
+            .col-name, #fileTable td:nth-child(2) { 
+                min-width: 300px !important; 
+                white-space: nowrap !important; 
+            }
             .col-time { min-width: 180px !important; } 
             .col-action { min-width: 270px !important; } 
             
-            /* 가로 스크롤이 확실히 생기도록 테이블 최소폭 설정 */
-            table { min-width: 750px !important; }
+            /* 가로 스크롤을 활성화하여 파일명이 세로로 깨지는 현상 완벽 방지 */
+            table { min-width: 850px !important; } /* 순번이 늘어난 만큼 전체 너비도 확장 */
             .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
         }
     </style>
