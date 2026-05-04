@@ -81,11 +81,11 @@
         th { background-color: #f2f2f2; border: 1px solid #ddd; padding: 6px; text-align: center; }
         td { border: 1px solid #ddd; padding: 6px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         
-        /* 지정된 열 사이즈 조정 */
+        /* 지정된 열 사이즈 조정 (순번 강제 축소 및 파일명 자동 확장) */
         .col-name { width: auto; } 
-        .col-num { width: 30px; text-align: center; padding-left: 2px !important; padding-right: 2px !important; } 
-        /* 순번 열 데이터 칸의 여백도 같이 줄여야 완벽하게 축소됩니다 */
-        #fileTable td:nth-child(1) { padding-left: 2px !important; padding-right: 2px !important; text-align: center; }
+        /* 순번 열 너비를 25px로 강제 고정하고, 좁은 칸에 글자가 들어가도록 여백 제거 및 크기 미세 조정 */
+        .col-num { width: 25px !important; min-width: 25px !important; max-width: 25px !important; padding: 0 !important; text-align: center; font-size: 12px !important; letter-spacing: -1px; } 
+        #fileTable td:nth-child(1) { width: 25px !important; padding: 0 !important; text-align: center; font-size: 12px !important; }
         .col-time { width: max-content; text-align: center; } 
         .col-action { width: 180px; text-align: center; }
         
@@ -103,10 +103,11 @@
             .config-section { padding: 8px; }
             button { padding: 0 8px; }
             
-            /* 스마트폰에서만 파일명, 시간, 작업 열 크기 약 50% 강제 확대 */
-            .col-name { min-width: 300px; }   /* 파일명 열 확장 */
-            .col-time { min-width: 200px; }   /* 업로드 시간 열 확장 (기존 약 130px -> 200px) */
-            .col-action { min-width: 270px; } /* 작업 열 확장 (기존 180px -> 270px) */
+            /* 스마트폰에서 파일명, 시간, 작업 열 크기 약 50% 강제 확대 */
+            /* 순번 열에서 줄어든 공간까지 파일명 열이 전부 흡수합니다 */
+            .col-name { min-width: 300px; }   
+            .col-time { min-width: 200px; }   
+            .col-action { min-width: 270px; } 
         }
     </style>
 </head>
