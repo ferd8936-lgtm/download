@@ -81,13 +81,14 @@
         th { background-color: #f2f2f2; border: 1px solid #ddd; padding: 6px; text-align: center; }
         td { border: 1px solid #ddd; padding: 6px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         
-        /* 지정된 열 사이즈 조정 (순번 강제 축소 및 파일명 자동 확장) */
+        /* 지정된 열 사이즈 조정 (고정 레이아웃 복구 및 순번 축소) */
         .col-name { width: auto; } 
-        /* 순번 열 너비를 25px로 강제 고정하고, 좁은 칸에 글자가 들어가도록 여백 제거 및 크기 미세 조정 */
-        .col-num { width: 25px !important; min-width: 25px !important; max-width: 25px !important; padding: 0 !important; text-align: center; font-size: 12px !important; letter-spacing: -1px; } 
-        #fileTable td:nth-child(1) { width: 25px !important; padding: 0 !important; text-align: center; font-size: 12px !important; }
-        .col-time { width: max-content; text-align: center; } 
-        .col-action { width: 180px; text-align: center; }
+        /* 순번 열: 약 25~30px로 축소 (글자가 들어갈 최소 공간) */
+        .col-num { width: 30px !important; text-align: center; padding: 0 2px !important; font-size: 12px !important; word-break: keep-all; } 
+        #fileTable td:nth-child(1) { padding: 0 2px !important; text-align: center; font-size: 12px !important; }
+        /* 업로드 시간 열: max-content 대신 넉넉한 고정값(160px)을 주어 레이아웃 깨짐 방지 */
+        .col-time { width: 160px !important; text-align: center; } 
+        .col-action { width: 180px !important; text-align: center; }
         
         td button {
             height: 26px; /* 표 안의 버튼은 크기를 작게 별도 유지 */
@@ -103,11 +104,10 @@
             .config-section { padding: 8px; }
             button { padding: 0 8px; }
             
-            /* 스마트폰에서 파일명, 시간, 작업 열 크기 약 50% 강제 확대 */
-            /* 순번 열에서 줄어든 공간까지 파일명 열이 전부 흡수합니다 */
-            .col-name { min-width: 300px; }   
-            .col-time { min-width: 200px; }   
-            .col-action { min-width: 270px; } 
+            /* 스마트폰에서 파일명, 시간, 작업 열 강제 확대 (가로 스크롤 생성) */
+            .col-name { min-width: 300px !important; }   
+            .col-time { min-width: 200px !important; width: 200px !important; }   
+            .col-action { min-width: 270px !important; width: 270px !important; } 
         }
     </style>
 </head>
