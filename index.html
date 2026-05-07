@@ -1,217 +1,215 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <!-- 스마트폰 반응형 웹을 위한 뷰포트 설정 추가 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>퍼드(FERD) 파일 관리 시스템</title>
-    <style>
-        /* 1. 전체 폰트 및 사이즈 통일 (요구사항 7) */
-        @font-face {
-            font-family: 'NexonGothic';
-            src: url('NexonLv2Gothic_2.ttf') format('truetype');
-        }
-        
-        * { font-family: 'NexonGothic', sans-serif !important; box-sizing: border-box; }
-        body, input, button, table, th, td { font-size: 14px !important; }
+    <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>퍼드(FERD) 파일 관리 시스템</title>
+    <style>
+        /* 1. 전체 폰트 및 사이즈 통일 (요구사항 7) */
+        @font-face {
+            font-family: 'NexonGothic';
+            src: url('NexonLv2Gothic_2.ttf') format('truetype');
+        }
+        
+        * { font-family: 'NexonGothic', sans-serif !important; box-sizing: border-box; }
+        body, input, button, table, th, td { font-size: 14px !important; }
 
-        body { 
-            padding: 20px; 
-            line-height: 1.6; 
-            color: #333;
-            /* 2. PC 화면 크기 30% 확대 (800px -> 1040px) (요구사항 4) */
-            max-width: 1040px; 
-            margin: 0 auto; 
-        }
+        body { 
+            padding: 20px; 
+            line-height: 1.6; 
+            color: #333;
+            /* 2. PC 화면 크기 30% 확대 (800px -> 1040px) (요구사항 4) */
+            max-width: 1040px; 
+            margin: 0 auto; 
+        }
 
-        h2 { border-bottom: 2px solid #888; padding-bottom: 10px; font-size: 20px !important; }
+        h2 { border-bottom: 2px solid #888; padding-bottom: 10px; font-size: 20px !important; }
 
-        /* 3. 구역 가로 한줄 및 세로 중앙 정렬 (요구사항 2, 3, 5, 6) */
-        .config-section, .search-area { 
-            display: flex; 
-            align-items: center; /* 세로 가운데 정렬 */
-            gap: 5px; 
-            flex-wrap: nowrap; /* 스마트폰에서도 무조건 한 줄 유지 */
-        }
+        /* 3. 구역 가로 한줄 및 세로 중앙 정렬 (요구사항 2, 3, 5, 6) */
+        .config-section, .search-area { 
+            display: flex; 
+            align-items: center; /* 세로 가운데 정렬 */
+            gap: 5px; 
+            flex-wrap: nowrap; /* 스마트폰에서도 무조건 한 줄 유지 */
+        }
 
-        .config-section { 
-            background: #f9f9f9; 
-            padding: 10px 15px; 
-            border: 1px solid #ddd; 
-            border-radius: 5px; 
-            margin-bottom: 20px; 
-        }
-        .search-area { margin-bottom: 15px; }
+        .config-section { 
+            background: #f9f9f9; 
+            padding: 10px 15px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+            margin-bottom: 20px; 
+        }
+        .search-area { margin-bottom: 15px; }
 
-        /* 4. 입력칸과 버튼 세로 사이즈 완벽 동일화 (높이 38px 고정) */
-        input[type="text"], input[type="password"], button {
-            height: 38px;
-            margin: 0; /* 외부 여백 초기화 */
-            border-radius: 3px;
-        }
+        /* 4. 입력칸과 버튼 세로 사이즈 완벽 동일화 (높이 38px 고정) */
+        input[type="text"], input[type="password"], button {
+            height: 38px;
+            margin: 0; /* 외부 여백 초기화 */
+            border-radius: 3px;
+        }
 
-        input[type="text"], input[type="password"] { 
-            padding: 0 10px; 
-            border: 1px solid #ccc; 
-        }
+        input[type="text"], input[type="password"] { 
+            padding: 0 10px; 
+            border: 1px solid #ccc; 
+        }
 
-        button { 
-            padding: 0 12px; 
-            background: #888; 
-            color: white !important; 
-            border: none; 
-            cursor: pointer; 
-            white-space: nowrap; /* 글자 길이만큼만 가로 길이 유지 */
-            flex-shrink: 0; /* 버튼 가로 길이가 찌그러지지 않게 방어 */
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        button:hover { background: #666; }
+        button { 
+            padding: 0 12px; 
+            background: #888; 
+            color: white !important; 
+            border: none; 
+            cursor: pointer; 
+            white-space: nowrap; /* 글자 길이만큼만 가로 길이 유지 */
+            flex-shrink: 0; /* 버튼 가로 길이가 찌그러지지 않게 방어 */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        button:hover { background: #666; }
 
-        /* 5. 가로 길이 자동 분배 (요구사항 5, 6) */
-        #token, #repo { width: 30%; flex-grow: 1; min-width: 0; } /* 스마트폰에서 자연스럽게 줄어들게 설정 */
-        #searchInput { flex-grow: 1; width: auto !important; min-width: 0; } /* 검색칸이 남은 영역을 꽉 채움 */
+        /* 5. 가로 길이 자동 분배 (요구사항 5, 6) */
+        #token, #repo { width: 30%; flex-grow: 1; min-width: 0; } /* 스마트폰에서 자연스럽게 줄어들게 설정 */
+        #searchInput { flex-grow: 1; width: auto !important; min-width: 0; } /* 검색칸이 남은 영역을 꽉 채움 */
 
-        /* 테이블 및 표 안의 버튼 디자인 */
-        .table-responsive { width: 100%; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; table-layout: fixed; min-width: 450px; }
-        
-        th { background-color: #f2f2f2; border: 1px solid #ddd; padding: 6px; text-align: center; }
-        td { border: 1px solid #ddd; padding: 6px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        
-        /* 1. 순번 열 2배 확대(90px) 및 열 레이아웃 최적화 */
-        table { table-layout: auto !important; width: 100%; border-collapse: collapse; }
-        
-        /* 순번 열: 기존 45px에서 2배 늘린 90px 설정 */
-        .col-num { width: 90px !important; text-align: center; padding: 6px !important; font-size: 14px !important; }
-        #fileTable td:nth-child(1) { width: 90px !important; text-align: center; }
+        /* 테이블 및 표 안의 버튼 디자인 */
+        .table-responsive { width: 100%; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; table-layout: fixed; min-width: 450px; }
+        
+        th { background-color: #f2f2f2; border: 1px solid #ddd; padding: 6px; text-align: center; }
+        td { border: 1px solid #ddd; padding: 6px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        
+        /* 1. 순번 열 2배 확대(90px) 및 열 레이아웃 최적화 */
+        table { table-layout: auto !important; width: 100%; border-collapse: collapse; }
+        
+        /* 순번 열: 기존 45px에서 2배 늘린 90px 설정 */
+        .col-num { width: 90px !important; text-align: center; padding: 6px !important; font-size: 14px !important; }
+        #fileTable td:nth-child(1) { width: 90px !important; text-align: center; }
 
-        /* 파일명 열: 세로 줄바꿈 방지 및 남는 공간 자동 채움 */
-        .col-name { width: auto; white-space: nowrap !important; }
-        #fileTable td:nth-child(2) { white-space: nowrap !important; overflow: visible; }
+        /* 파일명 열: 세로 줄바꿈 방지 및 남는 공간 자동 채움 */
+        .col-name { width: auto; white-space: nowrap !important; }
+        #fileTable td:nth-child(2) { white-space: nowrap !important; overflow: visible; }
 
-        /* 시간 및 작업 열: 텍스트가 다 보일 수 있도록 너비 유지 */
-        .col-time { width: 160px !important; text-align: center; white-space: nowrap; }
-        .col-action { width: 180px !important; text-align: center; }
-        
-        td button {
-            height: 26px; /* 표 안의 버튼은 크기를 작게 별도 유지 */
-            padding: 0 6px;
-            font-size: 12px !important;
-        }
+        /* 시간 및 작업 열: 텍스트가 다 보일 수 있도록 너비 유지 */
+        .col-time { width: 160px !important; text-align: center; white-space: nowrap; }
+        .col-action { width: 180px !important; text-align: center; }
+        
+        td button {
+            height: 26px; /* 표 안의 버튼은 크기를 작게 별도 유지 */
+            padding: 0 6px;
+            font-size: 12px !important;
+        }
 
-        tr:hover { background-color: #f9f9f9; }
+        tr:hover { background-color: #f9f9f9; }
 
-        /* 2. 스마트폰 화면: 순번 크기 유지 및 파일명 세로 꺾임 방지 */
-        @media screen and (max-width: 600px) {
-            body { padding: 10px; }
-            
-            /* 모바일에서도 순번 열 90px 유지 */
-            .col-num, #fileTable td:nth-child(1) { width: 90px !important; min-width: 90px !important; }
+        /* 2. 스마트폰 화면: 순번 크기 유지 및 파일명 세로 꺾임 방지 */
+        @media screen and (max-width: 600px) {
+            body { padding: 10px; }
+            
+            /* 모바일에서도 순번 열 90px 유지 */
+            .col-num, #fileTable td:nth-child(1) { width: 90px !important; min-width: 90px !important; }
 
-            /* 파일명, 시간, 작업 열이 좁아지지 않게 최소 너비 강제 부여 */
-            .col-name, #fileTable td:nth-child(2) { 
-                min-width: 300px !important; 
-                white-space: nowrap !important; 
-            }
-            .col-time { min-width: 180px !important; } 
-            .col-action { min-width: 270px !important; } 
-            
-            /* 가로 스크롤을 활성화하여 파일명이 세로로 깨지는 현상 완벽 방지 */
-            table { min-width: 850px !important; } /* 순번이 늘어난 만큼 전체 너비도 확장 */
-            .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        }
-    </style>
+            /* 파일명, 시간, 작업 열이 좁아지지 않게 최소 너비 강제 부여 */
+            .col-name, #fileTable td:nth-child(2) { 
+                min-width: 300px !important; 
+                white-space: nowrap !important; 
+            }
+            .col-time { min-width: 180px !important; } 
+            .col-action { min-width: 270px !important; } 
+            
+            /* 가로 스크롤을 활성화하여 파일명이 세로로 깨지는 현상 완벽 방지 */
+            table { min-width: 850px !important; } /* 순번이 늘어난 만큼 전체 너비도 확장 */
+            .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        }
+    </style>
 </head>
 <body>
 
-    <h2>퍼드(FERD) 파일 관리 시스템</h2>
+    <h2>퍼드(FERD) 파일 관리 시스템</h2>
 
-    <div class="config-section">
-        <input type="password" id="token" placeholder="토큰">
-        <input type="text" id="repo" placeholder="아이디/저장소">
-        <button onclick="saveConfig()">저장</button>
-    </div>
+    <div class="config-section">
+        <input type="password" id="token" placeholder="토큰">
+        <input type="text" id="repo" placeholder="아이디/저장소">
+        <button onclick="saveConfig()">저장</button>
+    </div>
 
-    <div id="mainContent" style="display: none;">
-        <div class="search-area">
-            <input type="text" id="searchInput" onkeyup="searchFiles()" placeholder="파일 이름 검색...">
-            <button onclick="getFiles()">목록 새로고침</button>
-            <button onclick="document.getElementById('fileInput').click()">파일 업로드</button>
-            <input type="file" id="fileInput" style="display: none;" onchange="uploadFile()">
-        </div>
+    <div id="mainContent" style="display: none;">
+        <div class="search-area">
+            <input type="text" id="searchInput" onkeyup="searchFiles()" placeholder="파일 이름 검색...">
+            <button onclick="getFiles()">목록 새로고침</button>
+            <button onclick="document.getElementById('fileInput').click()">파일 업로드</button>
+            <input type="file" id="fileInput" style="display: none;" onchange="uploadFile()">
+        </div>
 
-        <!-- 모바일 가로 스크롤을 위한 래퍼 추가 -->
-        <div class="table-responsive">
-            <table id="fileTable">
-                <thead>
-                    <tr>
-                        <th class="col-num">순번</th>
-                        <th class="col-name">파일명</th>
-                        <th class="col-time">업로드 시간</th>
-                        <th class="col-action">작업</th>
-                    </tr>
-                </thead>
-                <tbody id="listContainer"></tbody>
-            </table>
-        </div>
-    </div>
+                <div class="table-responsive">
+            <table id="fileTable">
+                <thead>
+                    <tr>
+                        <th class="col-num">순번</th>
+                        <th class="col-name">파일명</th>
+                        <th class="col-time">업로드 시간</th>
+                        <th class="col-action">작업</th>
+                    </tr>
+                </thead>
+                <tbody id="listContainer"></tbody>
+            </table>
+        </div>
+    </div>
 
-    <script>
-        const ADMIN_PASSWORD = "jkd7102!!";
+    <script>
+        const ADMIN_PASSWORD = "jkd7102!!";
 
-        window.onload = function() {
-            const pwd = prompt("비밀번호를 입력하세요:");
-            if (pwd === ADMIN_PASSWORD) {
-                document.getElementById('mainContent').style.display = 'block';
-                const savedToken = localStorage.getItem('github_token');
-                const savedRepo = localStorage.getItem('github_repo');
-                if (savedToken) document.getElementById('token').value = savedToken;
-                if (savedRepo) document.getElementById('repo').value = savedRepo;
-                if (savedToken && savedRepo) getFiles();
-            } else {
-                alert("비밀번호가 틀렸습니다.");
-                document.body.innerHTML = "<div style='padding:50px; text-align:center;'><h3>접근 권한이 없습니다.</h3></div>";
-            }
-        };
+        window.onload = function() {
+            const pwd = prompt("비밀번호를 입력하세요:");
+            if (pwd === ADMIN_PASSWORD) {
+                document.getElementById('mainContent').style.display = 'block';
+                const savedToken = localStorage.getItem('github_token');
+                const savedRepo = localStorage.getItem('github_repo');
+                if (savedToken) document.getElementById('token').value = savedToken;
+                if (savedRepo) document.getElementById('repo').value = savedRepo;
+                if (savedToken && savedRepo) getFiles();
+            } else {
+                alert("비밀번호가 틀렸습니다.");
+                document.body.innerHTML = "<div style='padding:50px; text-align:center;'><h3>접근 권한이 없습니다.</h3></div>";
+            }
+        };
 
-        function saveConfig() {
-            localStorage.setItem('github_token', document.getElementById('token').value);
-            localStorage.setItem('github_repo', document.getElementById('repo').value);
-            alert("정보가 저장되었습니다.");
-            getFiles();
-        }
+        function saveConfig() {
+            localStorage.setItem('github_token', document.getElementById('token').value);
+            localStorage.setItem('github_repo', document.getElementById('repo').value);
+            alert("정보가 저장되었습니다.");
+            getFiles();
+        }
 
-        async function uploadFile() {
-            const token = document.getElementById('token').value;
-            const repo = document.getElementById('repo').value;
-            const fileInput = document.getElementById('fileInput');
-            if (!fileInput.files[0] || !token || !repo) return;
+        async function uploadFile() {
+            const token = document.getElementById('token').value;
+            const repo = document.getElementById('repo').value;
+            const fileInput = document.getElementById('fileInput');
+            if (!fileInput.files[0] || !token || !repo) return;
 
-            const file = fileInput.files[0];
-            const reader = new FileReader();
-            reader.onload = async function() {
-                const content = reader.result.split(',')[1];
-                const url = `https://api.github.com/repos/${repo}/contents/${encodeURIComponent(file.name)}`;
-                const response = await fetch(url, {
-                    method: 'PUT',
-                    headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: `Upload ${file.name}`, content: content })
-                });
-                if (response.ok) { 
-                    alert("업로드 성공!"); 
-                    getFiles(); // 업로드 직후 새로고침
-                } else { 
-                    alert("업로드 실패."); 
-                }
-            };
-            reader.readAsDataURL(file);
-            fileInput.value = "";
-        }
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = async function() {
+                const content = reader.result.split(',')[1];
+                const url = `https://api.github.com/repos/${repo}/contents/${encodeURIComponent(file.name)}`;
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: `Upload ${file.name}`, content: content })
+                });
+                if (response.ok) { 
+                    alert("업로드 성공!"); 
+                    getFiles(); // 업로드 직후 새로고침
+                } else { 
+                    alert("업로드 실패."); 
+                }
+            };
+            reader.readAsDataURL(file);
+            fileInput.value = "";
+        }
 
-        async function getFiles() {
+        async function getFiles() {
             const token = document.getElementById('token').value;
             const repo = document.getElementById('repo').value;
             const listContainer = document.getElementById('listContainer');
@@ -244,8 +242,7 @@
                             <td style="text-align:center;">
                                 <button onclick="copyUrl('${file.download_url}')">URL복사</button>
                                 <button onclick="window.open('${file.download_url}')">다운로드</button>
-                                <!-- 빨간색 배경 강제 적용 -->
-                                <button onclick="deleteFile('${file.name}', '${file.sha}')" style="background:#cc0000 !important; color:white !important;">삭제</button>
+                                                                <button onclick="deleteFile('${file.name}', '${file.sha}')" style="background:#cc0000 !important; color:white !important;">삭제</button>
                             </td>
                         `;
                         listContainer.appendChild(tr);
@@ -254,39 +251,39 @@
             } catch (e) { listContainer.innerHTML = "<tr><td colspan='4'>목록 로딩 실패</td></tr>"; }
         }
 
-        async function deleteFile(name, sha) {
-            if (!confirm(`'${name}'을 삭제할까요?`)) return;
-            const token = document.getElementById('token').value;
-            const repo = document.getElementById('repo').value;
-            const url = `https://api.github.com/repos/${repo}/contents/${encodeURIComponent(name)}`;
+        async function deleteFile(name, sha) {
+            if (!confirm(`'${name}'을 삭제할까요?`)) return;
+            const token = document.getElementById('token').value;
+            const repo = document.getElementById('repo').value;
+            const url = `https://api.github.com/repos/${repo}/contents/${encodeURIComponent(name)}`;
 
-            const response = await fetch(url, {
-                method: 'DELETE',
-                headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: `Delete ${name}`, sha: sha })
-            });
+            const response = await fetch(url, {
+                method: 'DELETE',
+                headers: { 'Authorization': `token ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: `Delete ${name}`, sha: sha })
+            });
 
-            if (response.ok) { 
-                alert("삭제 완료!"); 
-                getFiles(); 
-            } else { 
-                alert("삭제 실패. 이미 삭제되었거나 권한이 없습니다."); 
-                getFiles(); 
-            }
-        }
+            if (response.ok) { 
+                alert("삭제 완료!"); 
+                getFiles(); 
+            } else { 
+                alert("삭제 실패. 이미 삭제되었거나 권한이 없습니다."); 
+                getFiles(); 
+            }
+        }
 
-        function copyUrl(url) {
-            navigator.clipboard.writeText(url).then(() => alert("URL 복사 완료!"));
-        }
+        function copyUrl(url) {
+            navigator.clipboard.writeText(url).then(() => alert("URL 복사 완료!"));
+        }
 
-        function searchFiles() {
-            const input = document.getElementById('searchInput').value.toLowerCase();
-            const rows = document.querySelectorAll('#listContainer tr');
-            rows.forEach(row => {
-                const fileName = row.cells[1].innerText.toLowerCase();
-                row.style.display = fileName.includes(input) ? "" : "none";
-            });
-        }
-    </script>
+        function searchFiles() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const rows = document.querySelectorAll('#listContainer tr');
+            rows.forEach(row => {
+                const fileName = row.cells[1].innerText.toLowerCase();
+                row.style.display = fileName.includes(input) ? "" : "none";
+            });
+        }
+    </script>
 </body>
 </html>
