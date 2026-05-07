@@ -234,7 +234,7 @@
                         const commitUrl = `https://api.github.com/repos/${repo}/commits?path=${encodeURIComponent(file.name)}&per_page=1`;
                         const commitRes = await fetch(commitUrl, { headers: { 'Authorization': `token ${token}` }, cache: 'no-store' });
                         const commitData = await commitRes.json();
-                        let displayDate = (commitData && commitData[0]) ? commitData[0].commit.committer.date.replace('T', ' ').substring(0, 16) : "-";
+                        let displayDate = (commitData && commitData[0]) ? new Date(new Date(commitData[0].commit.committer.date).getTime() + 9 * 60 * 60 * 1000).toISOString().replace('T', ' ').substring(0, 16) : "-";
 
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
