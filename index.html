@@ -212,47 +212,57 @@
         }
 
         async function getFiles() {
-            const token = document.getElementById('token').value;
-            const repo = document.getElementById('repo').value;
-            const listContainer = document.getElementById('listContainer');
-            if (!token || !repo) return;
+            const token = document.getElementById('token').value;
+            const repo = document.getElementById('repo').value;
+            const listContainer = document.getElementById('listContainer');
+            if (!token || !repo) return;
 
-            listContainer.innerHTML = "<tr><td colspan='4' style='text-align:center;'>목록을 불러오는 중...</td></tr>";
+            listContainer.innerHTML = "<tr><td colspan='4' style='text-align:center;'>목록을 불러오는 중...</td></tr>";
 
-            try {
-                const url = `https://api.github.com/repos/${repo}/contents/`;
-                const response = await fetch(url, { headers: { 'Authorization': `token ${token}` }, cache: 'no-store' });
+            try {
+                const url = `https://api.github.com/repos/${repo}/contents/`;
+                const response = await fetch(url, { headers: { 'Authorization': `token ${token}` }, cache: 'no-store' });
 
-                if (response.ok) {
-                    const data = await response.json();
-                    listContainer.innerHTML = "";
-                    let count = 1;
+                if (response.ok) {
+                    const data = await response.json();
+                    listContainer.innerHTML = "";
+                    let count = 1;
 
-                    const filesOnly = data.filter(item => item.type === 'file' && item.name !== 'index.html' && item.name !== 'NexonLv2Gothic_2.ttf');
+                    const filesOnly = data.filter(item => item.type === 'file' && item.name !== 'index.html' && item.name !== 'NexonLv2Gothic_2.ttf');
 
-                    for (const file of filesOnly) {
-                        const commitUrl = `https://api.github.com/repos/${repo}/commits?path=${encodeURIComponent(file.name)}&per_page=1`;
-                        const commitRes = await fetch(commitUrl, { headers: { 'Authorization': `token ${token}` }, cache: 'no-store' });
-                        const commitData = await commitRes.json();
-                        let displayDate = (commitData && commitData[0]) ? commitData[0].commit.committer.date.replace('T', ' ').substring(0, 16) : "-";
+                    for (const file of filesOnly) {
+                        const commitUrl = `https://api.github.com/repos/${repo}/commits?path=${encodeURIComponent(file.name)}&per_page=1`;
+                        const commitRes = await fetch(commitUrl, { headers: { 'Authorization': `token ${token}` }, cache: 'no-store' });
+                        const commitData = await commitRes.json();
+                        
+                        let displayDate = "-";
+                        if (commitData && commitData[0]) {
+                            const d = new Date(commitData[0].commit.committer.date);
+                            const yyyy = d.getFullYear();
+                            const mm = String(d.getMonth() + 1).padStart(2, '0');
+                            const dd = String(d.getDate()).padStart(2, '0');
+                            const hh = String(d.getHours()).padStart(2, '0');
+                            const min = String(d.getMinutes()).padStart(2, '0');
+                            displayDate = `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+                        }
 
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td style="text-align:center;">${count++}</td>
-                            <td title="${file.name}">${file.name}</td>
-                            <td style="text-align:center;">${displayDate}</td>
-                            <td style="text-align:center;">
-                                <button onclick="copyUrl('${file.download_url}')">URL복사</button>
-                                <button onclick="window.open('${file.download_url}')">다운로드</button>
-                                <!-- 빨간색 배경 강제 적용 -->
-                                <button onclick="deleteFile('${file.name}', '${file.sha}')" style="background:#cc0000 !important; color:white !important;">삭제</button>
-                            </td>
-                        `;
-                        listContainer.appendChild(tr);
-                    }
-                }
-            } catch (e) { listContainer.innerHTML = "<tr><td colspan='4'>목록 로딩 실패</td></tr>"; }
-        }
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td style="text-align:center;">${count++}</td>
+                            <td title="${file.name}">${file.name}</td>
+                            <td style="text-align:center;">${displayDate}</td>
+                            <td style="text-align:center;">
+                                <button onclick="copyUrl('${file.download_url}')">URL복사</button>
+                                <button onclick="window.open('${file.download_url}')">다운로드</button>
+                                <!-- 빨간색 배경 강제 적용 -->
+                                <button onclick="deleteFile('${file.name}', '${file.sha}')" style="background:#cc0000 !important; color:white !important;">삭제</button>
+                            </td>
+                        `;
+                        listContainer.appendChild(tr);
+                    }
+                }
+            } catch (e) { listContainer.innerHTML = "<tr><td colspan='4'>목록 로딩 실패</td></tr>"; }
+        }
 
         async function deleteFile(name, sha) {
             if (!confirm(`'${name}'을 삭제할까요?`)) return;
